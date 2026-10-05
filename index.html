@@ -52,10 +52,10 @@
     border-radius: 999px; z-index: 5; will-change: transform;
     /* frosted glass: content behind shows through heavily blurred; .fill makes the middle denser than the rim, so the
        edges read clearer, the way the real lens does (its refraction itself can't be done in CSS) */
-    background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0) 7px, rgba(255,255,255,0) calc(100% - 7px), rgba(255,255,255,0.03)), rgba(52,52,52,0.6);
-    -webkit-backdrop-filter: blur(6px) saturate(1.4); backdrop-filter: blur(6px) saturate(1.4);
+    background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0) 7px, rgba(255,255,255,0) calc(100% - 7px), rgba(255,255,255,0.03)), rgba(69,69,69,0.45);
+    -webkit-backdrop-filter: blur(3.5px) saturate(1.4); backdrop-filter: blur(3.5px) saturate(1.4);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.19), inset 0 -1px 0 rgba(255,255,255,0.16); }
-  #tabs .fill { position: absolute; inset: 7px 9px; border-radius: 999px; background: rgba(31,31,31,0.45); filter: blur(4px); }
+  #tabs .fill { position: absolute; inset: 7px 9px; border-radius: 999px; background: rgba(31,31,31,0.35); filter: blur(4px); }
   #pill { position: absolute; left: 0; top: 7.4%; height: 85.2%; width: 26.1%; border-radius: 999px; background: #0a0a0a; will-change: transform; }
   .tabrow { position: absolute; inset: 0; }
   .tabrow.or { pointer-events: none; } .tabrow.or .tab { color: #f59d49; }
@@ -134,7 +134,7 @@
 <body>
 
 <!-- World Clock -->
-<div class="page" id="p-world">
+<div class="page on" id="p-world">
   <div class="top"><div class="pill">Edit</div><div class="plus"><svg width="18" height="18" viewBox="0 0 17 17"><path d="M8.5 1v15M1 8.5h15" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div></div>
   <h1>World Clock</h1>
   <div class="list" id="wclist" style="border-top:0.5px solid #3a3a3c"></div>
@@ -159,7 +159,7 @@
 </div>
 
 <!-- Stopwatch -->
-<div class="page on" id="p-stopwatch">
+<div class="page" id="p-stopwatch">
   <div id="digits" class="thin">00:00.00</div>
   <div id="controls">
     <div class="btn grey dis" id="left">Lap</div>
