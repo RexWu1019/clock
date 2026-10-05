@@ -13,7 +13,9 @@
 <style>
   /* All vertical positions are fractions of the physical screen height (--H, set from screen.height),
      measured from iOS 27 Clock screenshots on an iPhone 17 Pro Max (440x956pt). Origin = top of the screen. */
-  :root { color-scheme: dark; --H: 956px; --pad: 20px; }
+  :root { color-scheme: dark; --H: 956px; --pad: 20px;
+    --glass: linear-gradient(rgba(255,255,255,0.045), rgba(255,255,255,0) 6px, rgba(255,255,255,0) calc(100% - 6px), rgba(255,255,255,0.04)), #1f1f1f;
+    --rim: inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(255,255,255,0.2); }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   html, body { margin: 0; height: 100%; background: #000; color: #fff; overflow: hidden;
     font-family: -apple-system, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif; }
@@ -47,11 +49,12 @@
      Two copies of the tabs: white underneath, orange on top clipped to the moving capsule, so an icon is orange
      exactly where the lens covers it (that's how the real bar tints half an icon mid-slide). */
   #tabs { position: fixed; left: 21px; right: 21px; bottom: var(--tabBottom, 0px); height: calc(var(--H) * 0.0644);
-    border-radius: 999px; background: #1f1f1f; z-index: 5; will-change: transform;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), inset 0 0 0 0.5px rgba(255,255,255,0.07); }
+    border-radius: 999px; z-index: 5; will-change: transform;
+    background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0) 7px, rgba(255,255,255,0) calc(100% - 7px), rgba(255,255,255,0.03)), #1f1f1f;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.19), inset 0 -1px 0 rgba(255,255,255,0.16); }
   #pill { position: absolute; left: 0; top: 7.4%; height: 85.2%; width: 26.1%; border-radius: 999px; background: #0a0a0a; will-change: transform; }
   .tabrow { position: absolute; inset: 0; }
-  .tabrow.or { pointer-events: none; } .tabrow.or .tab { color: #ff9f0a; }
+  .tabrow.or { pointer-events: none; } .tabrow.or .tab { color: #f59d49; }
   .tab { position: absolute; top: 0; height: 100%; width: 26.1%; left: calc(0.96% + var(--k) * 24%); color: #fff; }
   .tab svg { position: absolute; top: 9.9px; left: 50%; margin-left: -14px; width: 28px; height: 28px; overflow: visible; }
   .tab span { position: absolute; top: 39px; left: -10px; right: -10px; text-align: center; font-size: 10px; line-height: 12px; font-weight: 600; white-space: nowrap; }
@@ -61,10 +64,10 @@
   /* ---- list pages (World Clock / Alarms / Timers) ---- */
   .top { position: absolute; left: var(--pad); right: var(--pad); top: calc(var(--H) * 0.065); height: 44px;
     display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
-  .pill { height: 44px; padding: 0 16.5px; border-radius: 999px; background: #1f1f1f; display: flex; align-items: center;
-    font-size: 17px; color: #fff; box-shadow: inset 0 1px 0.5px rgba(255,255,255,0.07), inset 0 -1px 0.5px rgba(255,255,255,0.22); }
-  .plus { width: 44px; height: 44px; border-radius: 50%; background: #1f1f1f; display: flex; align-items: center;
-    justify-content: center; box-shadow: inset 0 1px 0.5px rgba(255,255,255,0.07), inset 0 -1px 0.5px rgba(255,255,255,0.22); }
+  .pill { height: 44px; padding: 0 16.5px; border-radius: 999px; display: flex; align-items: center;
+    font-size: 17px; color: #fff; background: var(--glass); box-shadow: var(--rim); }
+  .plus { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; background: var(--glass); box-shadow: var(--rim); }
   h1 { position: absolute; left: var(--pad); top: calc(var(--H) * 0.125); margin: 0; font-size: 34px; font-weight: 700;
     letter-spacing: -0.3px; }
   .list { position: absolute; left: var(--pad); right: var(--pad); top: calc(var(--H) * 0.175); bottom: 0; overflow: hidden; }
@@ -191,10 +194,10 @@
 <div id="tabs">
   <div id="pill"></div>
   <div class="tabrow" id="tw">
-    <div class="tab" data-p="world" style="--k:0"><svg viewBox="0 0 24 24"><g class="s" stroke-width="1.6"><circle cx="12" cy="12" r="9.1"/><ellipse cx="12" cy="12" rx="4.2" ry="9.1"/><path d="M12 2.9v18.2M2.9 12h18.2M4.3 7.6h15.4M4.3 16.4h15.4"/></g></svg><span>World Clock</span></div>
-    <div class="tab" data-p="alarms" style="--k:1"><svg viewBox="0 0 24 24"><path class="f" fill-rule="evenodd" d="M4.2 13.2a7.8 7.8 0 1 0 15.6 0a7.8 7.8 0 1 0-15.6 0zM11.3 8.6h1.4v5.3H8.4v-1.4h2.9zM2.9 7.2a3.3 3.3 0 0 1 4.9-4.6zM21.1 7.2a3.3 3.3 0 0 0-4.9-4.6z"/><path class="s" stroke-width="1.6" d="M6.6 19.2l-1.6 1.7M17.4 19.2l1.6 1.7"/></svg><span>Alarms</span></div>
-    <div class="tab" data-p="stopwatch" style="--k:2"><svg viewBox="0 0 24 24"><path class="f" fill-rule="evenodd" d="M3 13.8a9 9 0 1 0 18 0a9 9 0 1 0-18 0zM11.25 7.6h1.5v4.3h-1.5zM10.25 13.8a1.75 1.75 0 1 0 3.5 0a1.75 1.75 0 1 0-3.5 0zM11.05 1.2h1.9v3.6h-1.9z"/><rect class="f" x="-0.95" y="-1.6" width="1.9" height="3.2" rx=".5" transform="translate(19.3 6.1) rotate(45)"/></svg><span>Stopwatch</span></div>
-    <div class="tab" data-p="timers" style="--k:3"><svg viewBox="0 0 24 24"><path class="s" stroke-width="1.8" d="M12 3.8A8.7 8.7 0 1 1 5.85 6.35M12 3.8v2.7M12 12.5L8.2 8.7"/><circle class="f" cx="12" cy="12.5" r="1.5"/></svg><span>Timers</span></div>
+    <div class="tab" data-p="world" style="--k:0"><svg viewBox="0 0 24 24"><g class="s" stroke-width="1.3"><circle cx="12" cy="12" r="9.2"/><ellipse cx="12" cy="12" rx="4.3" ry="9.2"/><path d="M12 2.8v18.4M2.8 12h18.4M4.6 7.9Q12 5.6 19.4 7.9M4.6 16.1Q12 18.4 19.4 16.1"/></g></svg><span>World Clock</span></div>
+    <div class="tab" data-p="alarms" style="--k:1"><svg viewBox="0 0 24 24"><path class="f" fill-rule="evenodd" d="M3.4 13a8.6 8.6 0 1 0 17.2 0a8.6 8.6 0 1 0-17.2 0zM11.45 7.6h1.1v5.95H8.3v-1.1h3.15zM3.6 8A3.1 3.1 0 0 1 8 3.6zM20.4 8A3.1 3.1 0 0 0 16 3.6z"/><path class="s" stroke-width="1.5" d="M6.6 19.7l-1.6 1.8M17.4 19.7l1.6 1.8"/></svg><span>Alarms</span></div>
+    <div class="tab" data-p="stopwatch" style="--k:2"><svg viewBox="0 0 24 24"><path class="f" fill-rule="evenodd" d="M3.1 13.4a8.9 8.9 0 1 0 17.8 0a8.9 8.9 0 1 0-17.8 0zM11.45 7.2h1.1v4.55h-1.1zM10.4 13.4a1.6 1.6 0 1 0 3.2 0a1.6 1.6 0 1 0-3.2 0z"/><rect class="f" x="11.1" y="2" width="1.8" height="3" rx=".9"/><rect class="f" x="-0.9" y="-1.3" width="1.8" height="2.6" rx=".8" transform="translate(19 6.4) rotate(45)"/></svg><span>Stopwatch</span></div>
+    <div class="tab" data-p="timers" style="--k:3"><svg viewBox="0 0 24 24"><path class="s" stroke-width="1.7" d="M12 3.65A8.95 8.95 0 1 1 5.67 6.27M12 3.65v2.75"/><path class="f" d="M8.38 8.42L12.71 11.89L11.29 13.31L7.82 8.98Z"/><circle class="f" cx="12" cy="12.6" r="1.6"/></svg><span>Timers</span></div>
   </div>
   <div class="tabrow or" id="to" aria-hidden="true"></div>
 </div>
