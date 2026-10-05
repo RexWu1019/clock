@@ -13,8 +13,8 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <style>
   /* All vertical positions are fractions of the physical screen height (--H, set from screen.height),
-     measured from iOS 26 Clock screenshots on a 393x852 iPhone. Origin = top of the screen. */
-  :root { color-scheme: dark; --H: 852px; --pad: 4.3vw; }
+     measured from iOS 27 Clock screenshots on an iPhone 17 Pro Max (440x956pt). Origin = top of the screen. */
+  :root { color-scheme: dark; --H: 956px; --pad: 20px; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   html, body { margin: 0; height: 100%; background: #000; color: #fff; overflow: hidden;
     font-family: -apple-system, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif; }
@@ -24,88 +24,97 @@
   .t.thin { font-weight: 200; font-variant-numeric: proportional-nums; font-feature-settings: "pnum"; }
 
   /* ---- stopwatch ---- */
-  #digits { position: absolute; left: 0; right: 0; top: calc(var(--H) * 0.2795); transform: translateY(-42%); text-align: center;
+  #digits { position: absolute; left: 0; right: 0; top: calc(var(--H) * 0.233); transform: translateY(-42%); text-align: center;
     font-size: 20vw; letter-spacing: 0; }
   #controls { position: absolute; left: 3.6vw; right: 3.6vw; top: calc(var(--H) * 0.504); transform: translateY(-50%);
     display: flex; justify-content: space-between; align-items: center; }
   .btn { width: 19vw; height: 19vw; border-radius: 50%; display: flex; align-items: center; justify-content: center;
     font-size: 17px; font-weight: 400; }
   .btn.grey { background: #333333; color: #fff; }
-  .btn.grey.dis { background: #1a1a1a; color: #8a8a8e; }
-  .btn.green { background: #0d2e18; color: #30d158; }
+  .btn.grey.dis { background: #1c1c1c; color: #8a8a8e; }
+  .btn.green { background: #082a11; color: #30d158; }
   .btn.red { background: #3b1412; color: #ff453a; }
   .btn:active { filter: brightness(1.4); }
   #dots { display: flex; gap: 10px; }
   #dots i { width: 7px; height: 7px; border-radius: 50%; background: #48484a; display: block; }
   #dots i.on { background: #fff; }
   #laps { position: absolute; left: 3.6vw; right: 3.6vw; top: calc(var(--H) * 0.564); bottom: calc(var(--H) * 0.1);
-    overflow-y: auto; -webkit-overflow-scrolling: touch; border-top: 0.5px solid #3a3a3c; }
+    overflow-y: auto; -webkit-overflow-scrolling: touch; border-top: 0.5px solid #232325; }
   .lap { display: flex; justify-content: space-between; align-items: center; height: calc(var(--H) * 0.046);
     border-bottom: 0.5px solid #3a3a3c; font-size: 17px; font-variant-numeric: tabular-nums; padding: 0 1px; }
   .lap.best { color: #30d158; } .lap.worst { color: #ff453a; }
 
-  /* ---- tab bar (Liquid Glass capsule) ---- */
-  #tabs { position: fixed; left: 4.8vw; right: 4.8vw; bottom: var(--tabBottom, 0px); height: calc(var(--H) * 0.0625);
-    border-radius: 999px; background: #1b1b1d; box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.07);
-    display: flex; align-items: center; justify-content: space-between; padding: 0 5px; z-index: 5; }
-  #pill { position: absolute; top: 6%; height: 88%; width: 26.5%; left: 5px; border-radius: 999px; background: #3a3a3c;
-    transition: left 0.38s cubic-bezier(0.25, 1.25, 0.45, 1); }
-  .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; position: relative;
-    font-size: 11px; font-weight: 600; color: #fff; width: 26.5%; height: 88%; border-radius: 999px; transition: color 0.25s; }
-  .tab.on { color: #ff9f0a; }
+  /* ---- tab bar (iOS 27 Liquid Glass capsule) ----
+     Two copies of the tabs: white underneath, orange on top clipped to the moving capsule, so an icon is orange
+     exactly where the lens covers it (that's how the real bar tints half an icon mid-slide). */
+  #tabs { position: fixed; left: 21px; right: 21px; bottom: var(--tabBottom, 0px); height: calc(var(--H) * 0.0644);
+    border-radius: 999px; background: #1f1f1f; z-index: 5; will-change: transform;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.16), inset 0 0 0 0.5px rgba(255,255,255,0.07); }
+  #pill { position: absolute; left: 0; top: 7.4%; height: 85.2%; width: 26.1%; border-radius: 999px; background: #0a0a0a; will-change: transform; }
+  .tabrow { position: absolute; inset: 0; }
+  .tabrow.or { pointer-events: none; } .tabrow.or .tab { color: #ff9f0a; }
+  .tab { position: absolute; top: 0; height: 100%; width: 26.1%; left: calc(0.96% + var(--k) * 24%); color: #fff; }
+  .tab svg { position: absolute; top: 9.9px; left: 50%; margin-left: -14px; width: 28px; height: 28px; overflow: visible; }
+  .tab span { position: absolute; top: 39px; left: -10px; right: -10px; text-align: center; font-size: 10px; line-height: 12px; font-weight: 600; white-space: nowrap; }
+  .tab .f { fill: currentColor; } .tab .s { fill: none; stroke: currentColor; stroke-linecap: round; }
   .page.on { display: block; }
-  .tab svg { width: 25px; height: 25px; fill: currentColor; }
-  .tab svg.line { fill: none; stroke: currentColor; }
+
+  /* the top-edge blur iOS 27 draws over home-screen apps: a fixed opaque box touching the top edge is said to replace it
+     with that box's colour (not yet verified on a device) */
+  #topcap { position: fixed; left: 0; right: 0; top: 0; height: env(safe-area-inset-top, 0px); background: #000; z-index: 6; pointer-events: none; }
 
   /* ---- list pages (World Clock / Alarms / Timers) ---- */
   .top { position: absolute; left: var(--pad); right: var(--pad); top: calc(var(--H) * 0.065); height: 44px;
-    display: flex; justify-content: space-between; align-items: center; }
-  .pill { height: 44px; padding: 0 18px; border-radius: 999px; background: #1c1c1e; display: flex; align-items: center;
-    font-size: 17px; color: #fff; box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.08); }
-  .plus { width: 44px; height: 44px; border-radius: 50%; background: #1c1c1e; display: flex; align-items: center;
-    justify-content: center; font-size: 26px; font-weight: 300; box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.08); }
+    display: flex; justify-content: flex-end; align-items: center; gap: 12px; }
+  .pill { height: 44px; padding: 0 16.5px; border-radius: 999px; background: #1f1f1f; display: flex; align-items: center;
+    font-size: 17px; color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 0 0 0.5px rgba(255,255,255,0.06); }
+  .plus { width: 44px; height: 44px; border-radius: 50%; background: #1f1f1f; display: flex; align-items: center;
+    justify-content: center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), inset 0 0 0 0.5px rgba(255,255,255,0.06); }
   h1 { position: absolute; left: var(--pad); top: calc(var(--H) * 0.125); margin: 0; font-size: 34px; font-weight: 700;
     letter-spacing: -0.3px; }
   .list { position: absolute; left: var(--pad); right: var(--pad); top: calc(var(--H) * 0.175); bottom: 0; overflow: hidden; }
   .row { border-bottom: 0.5px solid #3a3a3c; }
   .wc { height: calc(var(--H) * 0.1); display: flex; justify-content: space-between; align-items: center; }
+  .wc > div:first-child { transform: translateY(1.5px); }
   .wc small { display: block; color: #8e8e93; font-size: 15px; margin-bottom: 2px; }
   .wc .city { font-size: 28px; }
   .wc .t { font-size: 13.5vw; }
-  .sec { font-size: 20.5px; font-weight: 600; padding: 29.5px 0 5.5px; display: flex; align-items: center; gap: 4px; }
-  .sec.other { font-size: 20px; padding: 0 0 8px; }
+  .sec { font-size: 20px; font-weight: 600; padding: 32px 0 10px; display: flex; align-items: center; gap: 4px; }
+  .sec.other { font-size: 20px; padding: 0 0 10.6px; }
   .sec svg { width: 21.5px; height: 25.5px; fill: #fff; }
-  .al { height: calc(var(--H) * 0.1075); display: flex; justify-content: space-between; align-items: flex-start; color: #8e8e93; }
-  .al > div:first-child { padding-top: 7.8px; }
-  .al .t { font-size: 13.5vw; color: #98989d; }
-  .al .lbl { font-size: 15px; margin-top: 2.7px; color: #8e8e93; }
-  .sw { width: 62px; height: 30px; border-radius: 999px; background: #39393d; position: relative; flex: none; margin-top: 26px; }
+  .al { height: calc(var(--H) * 0.1058); display: flex; justify-content: space-between; align-items: flex-start; color: #8e8e93; }
+  .al > div:first-child { padding-top: 7.2px; }
+  /* iOS 27 draws alarm and recent-timer times in Regular, smaller than the thin World Clock times */
+  .t.reg { font-size: 12.3vw; font-weight: 400; color: #98989d; font-variant-numeric: proportional-nums; font-feature-settings: "pnum"; }
+  .al .lbl { font-size: 15px; margin-top: 0.6px; color: #8e8e93; }
+  .sw { width: 62px; height: 30px; border-radius: 999px; background: #464548; position: relative; flex: none; margin-top: 30.5px; }
   .sw::after { content: ""; position: absolute; left: 2.5px; top: 2.5px; width: 37px; height: 25px; border-radius: 999px; background: #fff; }
   .noalarm { height: calc(var(--H) * 0.0649); display: flex; justify-content: space-between; align-items: center; color: #8e8e93; font-size: 17.5px; }
-  .setup { background: #2c2c2e; color: #ff9f0a; font-weight: 600; font-size: 15px; height: 29px; padding: 0 11.5px; border-radius: 999px; display: inline-flex; align-items: center; }
+  .setup { background: #2c2c2e; color: #ff9f0a; font-weight: 600; font-size: 15px; height: 29px; padding: 0 10px; border-radius: 999px; display: inline-flex; align-items: center; }
   .gap { height: calc(var(--H) * 0.0617); }
-  /* timers */
-  .picker { position: absolute; left: 16vw; right: 16vw; top: calc(var(--H) * 0.36); height: calc(var(--H) * 0.11); }
-  .picker .sel { height: 30px; border-radius: 999px; background: #2c2c2e; position: relative; font-size: 16.7px; font-weight: 600; }
-  .picker .col { position: absolute; top: 0; height: 30px; display: flex; align-items: center; }
-  .picker .col b { position: absolute; right: 0; font-weight: 300; font-size: 22px; }
-  .picker .col i { position: absolute; left: 5.5px; font-style: normal; }
-  .picker .fade { position: relative; color: #6e6e73; font-size: 22px; line-height: 1.25; margin-top: 3.5px; }
-  .picker .fade div { position: absolute; top: 0; transform: translateX(-100%); text-align: right; }
-  .picker .fade div p { margin: 0; }
-  .picker .fade div p:nth-child(2) { opacity: 0.6; } .picker .fade div p:nth-child(3) { opacity: 0.35; transform: translateY(-4px) scaleY(0.8); }
-  #tcontrols { position: absolute; left: 3.6vw; right: 3.6vw; top: calc(var(--H) * 0.537); transform: translateY(-50%);
+  /* timers (iOS 27: picker remembers the last duration, icon buttons, smaller circles) */
+  .picker { position: absolute; left: 0; right: 0; top: calc(var(--H) * 0.3623); height: 0; }
+  .picker .sel { position: absolute; left: 69.3px; right: 69.7px; top: -16.75px; height: 33.5px; border-radius: 999px; background: #151515; }
+  .picker .c { position: absolute; top: 0; width: 0; height: 0; }
+  .picker .c > * { position: absolute; transform: translateY(-50%); line-height: 1; white-space: nowrap; }
+  .picker b { right: 0; font-weight: 300; font-size: 22px; }
+  .picker i { left: 4px; font-style: normal; font-size: 16.7px; font-weight: 600; }
+  .picker p { margin: 0; right: 0; font-weight: 300; font-size: 22px; }
+  #tcontrols { position: absolute; left: 25.5px; right: 25.5px; top: calc(var(--H) * 0.5133); transform: translateY(-50%);
     display: flex; justify-content: space-between; }
-  .card { position: absolute; left: 14.7px; right: 14.7px; top: calc(var(--H) * 0.617); background: #1c1c1e; border-radius: 22px; padding: 0 18.5px 0 19px; }
+  .tbtn { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .tbtn.grey { background: #1c1c1c; } .tbtn.green { background: #082a11; }
+  .card { position: absolute; left: 25.8px; right: 25.8px; top: calc(var(--H) * 0.5718); background: #1c1c1e; border-radius: 26px; padding: 0 20px 0 20.5px; }
   .card .r { height: 52px; display: flex; justify-content: space-between; align-items: center; font-size: 17px; }
   .card .r + .r { border-top: 0.5px solid #3a3a3c; }
+  .card .r + .r span:first-child { margin-left: -4.5px; }
   .card .r span:last-child { color: #8e8e93; }
-  .recents { position: absolute; left: var(--pad); right: var(--pad); top: calc(var(--H) * 0.785); }
-  .recents h2 { margin: 0; font-size: 20px; font-weight: 600; padding-bottom: 12px; border-bottom: 0.5px solid #3a3a3c; }
-  .recents .rr { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; }
-  .recents .rr .t { font-size: 13.5vw; color: #98989d; }
-  .play { width: 60px; height: 60px; border-radius: 50%; background: #0d2e18; display: flex; align-items: center; justify-content: center; }
-  .play::after { content: ""; border-left: 22px solid #30d158; border-top: 13px solid transparent; border-bottom: 13px solid transparent; margin-left: 5px; }
+  .recents { position: absolute; left: 30px; right: 29px; top: calc(var(--H) * 0.7346); }
+  .recents h2 { margin: 0; font-size: 20px; font-weight: 600; padding-bottom: 10.5px; border-bottom: 0.5px solid #3a3a3c; }
+  .recents .rr { height: 90px; display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid #3a3a3c; }
+  .recents .rr > div:first-child { align-self: flex-start; padding-top: 1.5px; }
+  .recents .lbl { font-size: 15px; margin-top: -1.5px; color: #8e8e93; }
+  .play { width: 55.4px; height: 55.4px; border-radius: 50%; background: #082a11; display: flex; align-items: center; justify-content: center; }
 
   /* ---- hidden target setter ---- */
   #setter { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 9; }
@@ -124,26 +133,26 @@
 
 <!-- World Clock -->
 <div class="page" id="p-world">
-  <div class="top"><div class="pill">Edit</div><div class="plus"><svg width="17" height="17" viewBox="0 0 17 17"><path d="M8.5 1v15M1 8.5h15" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div></div>
+  <div class="top"><div class="pill">Edit</div><div class="plus"><svg width="18" height="18" viewBox="0 0 17 17"><path d="M8.5 1v15M1 8.5h15" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div></div>
   <h1>World Clock</h1>
   <div class="list" id="wclist" style="border-top:0.5px solid #3a3a3c"></div>
 </div>
 
 <!-- Alarms -->
 <div class="page" id="p-alarms">
-  <div class="top"><div class="pill">Edit</div><div class="plus"><svg width="17" height="17" viewBox="0 0 17 17"><path d="M8.5 1v15M1 8.5h15" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div></div>
+  <div class="top"><div class="pill">Edit</div><div class="plus"><svg width="18" height="18" viewBox="0 0 17 17"><path d="M8.5 1v15M1 8.5h15" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div></div>
   <h1>Alarms</h1>
   <div class="list">
     <div class="sec row"><svg viewBox="0 0 24 24"><path d="M3 11.5V7a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v3h12V7a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v4.5A2.5 2.5 0 0 1 23 14v4h-2v-2H3v2H1v-4a2.5 2.5 0 0 1 2-2.5z"/></svg>Sleep | Wake Up</div>
     <div class="noalarm row"><span>No Alarm</span><span class="setup">SET UP</span></div>
     <div class="gap"></div>
     <div class="sec other row">Other</div>
-    <div class="al row"><div><div class="t thin">00:00</div><div class="lbl">搶 spacex</div></div><div class="sw"></div></div>
-    <div class="al row"><div><div class="t thin">00:55</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
-    <div class="al row"><div><div class="t thin">01:30</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
-    <div class="al row"><div><div class="t thin">05:00</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
-    <div class="al row"><div><div class="t thin">06:30</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
-    <div class="al row"><div><div class="t thin">06:40</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
+    <div class="al row"><div><div class="t reg">00:00</div><div class="lbl">搶 spacex</div></div><div class="sw"></div></div>
+    <div class="al row"><div><div class="t reg">00:55</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
+    <div class="al row"><div><div class="t reg">01:30</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
+    <div class="al row"><div><div class="t reg">05:00</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
+    <div class="al row"><div><div class="t reg">06:30</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
+    <div class="al row"><div><div class="t reg">06:40</div><div class="lbl">Alarm</div></div><div class="sw"></div></div>
   </div>
 </div>
 
@@ -160,23 +169,40 @@
 
 <!-- Timers -->
 <div class="page" id="p-timers">
-  <div class="top"><div class="pill">Edit</div><div></div></div>
+  <div class="top"><div class="pill">Edit</div></div>
   <h1>Timers</h1>
+  <!-- static picker at 0 h 59 min 0 s, the duration last used on Rex's phone; rows above/below the selection shrink and fade
+       like the 3D wheel. Hours and seconds sit at 0 (nothing above), minutes at 59 (nothing below). -->
   <div class="picker">
-    <div class="sel"><span class="col" style="left:calc(97.5px - 16vw)"><b>0</b><i>hours</i></span><span class="col" style="left:calc(198px - 16vw)"><b>0</b><i>min</i></span><span class="col" style="left:calc(298.5px - 16vw)"><b>0</b><i>sec</i></span></div>
-    <div class="fade"><div style="left:calc(97.5px - 16vw)"><p>1</p><p>2</p><p>3</p></div><div style="left:calc(198px - 16vw)"><p>1</p><p>2</p><p>3</p></div><div style="left:calc(298.5px - 16vw)"><p>1</p><p>2</p><p>3</p></div></div>
+    <div class="sel"></div>
+    <div class="c" style="left:107.5px"><b>0</b><i>hours</i>
+      <p style="top:31.2px;color:#5f5f60;transform:translateY(-50%) scaleY(.85)">1</p><p style="top:58.3px;color:#555556;transform:translateY(-50%) scaleY(.67)">2</p><p style="top:76.5px;color:#303030;transform:translateY(-50%) scaleY(.4)">3</p><p style="top:87.5px;color:#1c1c1c;transform:translateY(-50%) scaleY(.15)">4</p></div>
+    <div class="c" style="left:217.5px"><b>59</b><i>min</i>
+      <p style="top:-31.2px;color:#5f5f60;transform:translateY(-50%) scaleY(.85)">58</p><p style="top:-58.3px;color:#555556;transform:translateY(-50%) scaleY(.67)">57</p><p style="top:-76.5px;color:#303030;transform:translateY(-50%) scaleY(.4)">56</p><p style="top:-87.5px;color:#1c1c1c;transform:translateY(-50%) scaleY(.15)">55</p></div>
+    <div class="c" style="left:327px"><b>0</b><i>sec</i>
+      <p style="top:31.2px;color:#5f5f60;transform:translateY(-50%) scaleY(.85)">1</p><p style="top:58.3px;color:#555556;transform:translateY(-50%) scaleY(.67)">2</p><p style="top:76.5px;color:#303030;transform:translateY(-50%) scaleY(.4)">3</p><p style="top:87.5px;color:#1c1c1c;transform:translateY(-50%) scaleY(.15)">4</p></div>
   </div>
-  <div id="tcontrols"><div class="btn grey dis">Cancel</div><div class="btn green">Start</div></div>
-  <div class="card"><div class="r"><span>Label</span><span>Timer</span></div><div class="r"><span>When Timer Ends</span><span>Radar &nbsp;›</span></div></div>
-  <div class="recents"><h2>Recents</h2><div class="rr"><div class="t thin">59:00</div><div class="play"></div></div></div>
+  <div id="tcontrols">
+    <div class="tbtn grey"><svg width="21" height="21" viewBox="0 0 21 21"><path d="M1 1l19 19M20 1L1 20" stroke="#58585b" stroke-width="1.7" stroke-linecap="round"/></svg></div>
+    <div class="tbtn green"><svg width="20" height="23" viewBox="0 0 20 23" style="margin-left:2.4px"><path d="M1.6 1.3c0-.9 1-1.5 1.8-1L19 10.3c.8.5.8 1.7 0 2.2L3.4 22.7c-.8.5-1.8-.1-1.8-1z" fill="#30d158"/></svg></div>
+  </div>
+  <div class="card"><div class="r"><span>Label</span><span>Timer</span></div><div class="r"><span>Sound</span><span>Radar &nbsp;›</span></div></div>
+  <div class="recents"><h2>Recents</h2>
+    <div class="rr"><div><div class="t reg">59:00</div><div class="lbl">59 min</div></div><div class="play"><svg width="18" height="21" viewBox="0 0 20 23" style="margin-left:2px"><path d="M1.6 1.3c0-.9 1-1.5 1.8-1L19 10.3c.8.5.8 1.7 0 2.2L3.4 22.7c-.8.5-1.8-.1-1.8-1z" fill="#30d158"/></svg></div></div>
+    <div class="rr"><div><div class="t reg">12:00</div><div class="lbl">12 min</div></div><div class="play"><svg width="18" height="21" viewBox="0 0 20 23" style="margin-left:2px"><path d="M1.6 1.3c0-.9 1-1.5 1.8-1L19 10.3c.8.5.8 1.7 0 2.2L3.4 22.7c-.8.5-1.8-.1-1.8-1z" fill="#30d158"/></svg></div></div>
+  </div>
 </div>
 
+<div id="topcap"></div>
 <div id="tabs">
   <div id="pill"></div>
-  <div class="tab" data-p="world"><svg class="line" viewBox="0 0 24 24" stroke-width="1.6"><circle cx="12" cy="12" r="9.2"/><ellipse cx="12" cy="12" rx="4" ry="9.2"/><path d="M2.8 12h18.4M4.6 7.5h14.8M4.6 16.5h14.8"/></svg>World Clock</div>
-  <div class="tab" data-p="alarms"><svg viewBox="0 0 24 24"><path d="M12 4.5a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-.9 3.5h1.8v4.4l3.2 1.9-.9 1.5-4.1-2.4V8zM5.2 2.4 2.5 4.7l1.4 1.6 2.7-2.3-1.4-1.6zm13.6 0-1.4 1.6 2.7 2.3 1.4-1.6-2.7-2.3z"/></svg>Alarms</div>
-  <div class="tab on" data-p="stopwatch"><svg viewBox="0 0 24 24"><path d="M9.6 1.2h4.8v2H9.6v-2zM12 5.2a8.6 8.6 0 1 0 0 17.2 8.6 8.6 0 0 0 0-17.2zm-.9 3.3h1.8v5.6a1.2 1.2 0 1 1-1.8 0V8.5z"/></svg>Stopwatch</div>
-  <div class="tab" data-p="timers"><svg class="line" viewBox="0 0 24 24" stroke-width="1.8"><circle cx="12" cy="12.5" r="8.6"/><path d="M12 8v5" stroke-linecap="round"/><path d="M12 3.9V2.2M10 2.2h4"/></svg>Timers</div>
+  <div class="tabrow" id="tw">
+    <div class="tab" data-p="world" style="--k:0"><svg viewBox="0 0 24 24"><g class="s" stroke-width="1.6"><circle cx="12" cy="12" r="9.1"/><ellipse cx="12" cy="12" rx="4.2" ry="9.1"/><path d="M12 2.9v18.2M2.9 12h18.2M4.3 7.6h15.4M4.3 16.4h15.4"/></g></svg><span>World Clock</span></div>
+    <div class="tab" data-p="alarms" style="--k:1"><svg viewBox="0 0 24 24"><path class="f" fill-rule="evenodd" d="M4.2 13.2a7.8 7.8 0 1 0 15.6 0a7.8 7.8 0 1 0-15.6 0zM11.3 8.6h1.4v5.3H8.4v-1.4h2.9zM2.9 7.2a3.3 3.3 0 0 1 4.9-4.6zM21.1 7.2a3.3 3.3 0 0 0-4.9-4.6z"/><path class="s" stroke-width="1.6" d="M6.6 19.2l-1.6 1.7M17.4 19.2l1.6 1.7"/></svg><span>Alarms</span></div>
+    <div class="tab" data-p="stopwatch" style="--k:2"><svg viewBox="0 0 24 24"><path class="f" fill-rule="evenodd" d="M3 13.8a9 9 0 1 0 18 0a9 9 0 1 0-18 0zM11.25 7.6h1.5v4.3h-1.5zM10.25 13.8a1.75 1.75 0 1 0 3.5 0a1.75 1.75 0 1 0-3.5 0zM11.05 1.2h1.9v3.6h-1.9z"/><rect class="f" x="-0.95" y="-1.6" width="1.9" height="3.2" rx=".5" transform="translate(19.3 6.1) rotate(45)"/></svg><span>Stopwatch</span></div>
+    <div class="tab" data-p="timers" style="--k:3"><svg viewBox="0 0 24 24"><path class="s" stroke-width="1.8" d="M12 3.8A8.7 8.7 0 1 1 5.85 6.35M12 3.8v2.7M12 12.5L8.2 8.7"/><circle class="f" cx="12" cy="12.5" r="1.5"/></svg><span>Timers</span></div>
+  </div>
+  <div class="tabrow or" id="to" aria-hidden="true"></div>
 </div>
 
 <div id="setter">
@@ -191,11 +217,11 @@
 <script>
 (function () {
   const $ = id => document.getElementById(id);
-  // Vertical positions use the physical screen height. iOS 26 cuts a status-bar-tall strip off the bottom of
+  // Vertical positions use the physical screen height. iOS 26 and 27 cut a status-bar-tall strip off the bottom of
   // home-screen apps (WebKit bug 301108; the "black" status bar style did not help on a real device, 2026-10-05),
   // so the tab capsule is anchored to the bottom of the drawable area and only placed at the true Clock position
   // when the viewport covers the whole screen.
-  const H = (screen && screen.height) ? screen.height : 852;
+  const H = (screen && screen.height) ? screen.height : 956;
   document.documentElement.style.setProperty('--H', H + 'px');
   function placeTabs() {
     const vh = window.innerHeight, full = vh >= H - 8;
@@ -203,21 +229,54 @@
   }
   placeTabs(); window.addEventListener('resize', placeTabs);
 
-  // ---- tabs: sliding pill, content switches instantly (the real Clock app doesn't fade) ----
-  const pill = $('pill');
-  function movePill(t, animate) {
-    if (!animate) pill.style.transition = 'none';
-    pill.style.left = t.offsetLeft + 'px'; pill.style.width = t.offsetWidth + 'px';
-    if (!animate) requestAnimationFrame(() => pill.style.transition = '');
+  // ---- tabs: iOS 27 lens. Press: the capsule swells into a clear glass lens and the bar grows a little; it springs
+  // to the new tab (slight overshoot), then shrinks back to the dark capsule. Content switches instantly (no fade). ----
+  const bar = $('tabs'), pill = $('pill'), tw = $('tw'), to = $('to');
+  to.innerHTML = tw.innerHTML;
+  const tabs = [...tw.children];
+  let cur = tabs.findIndex(t => t.dataset.p === document.querySelector('.page.on').id.slice(2));
+  let x = 0, v = 0, goal = 0, L = 0, Lv = 0, pressed = false, raf2 = 0, last = 0;
+  const slot = i => tabs[i].offsetLeft;
+  function draw() {
+    const W = bar.clientWidth, Hb = bar.clientHeight, w = pill.offsetWidth, h = pill.offsetHeight, top = pill.offsetTop;
+    const sx = 1 + 0.10 * L, sy = 1 + 0.22 * L, c = Math.round(10 + 30 * L);
+    pill.style.transform = `translateX(${x}px) scale(${sx},${sy})`;
+    pill.style.background = `rgb(${c},${c},${c})`;
+    pill.style.boxShadow = L > 0.01 ? `inset 0 0 0 1px rgba(255,255,255,${0.22 * L}), 0 2px 10px rgba(0,0,0,${0.4 * L})` : 'none';
+    bar.style.transform = `scale(${1 + 0.025 * L})`;
+    const cx = x + w / 2, cy = top + h / 2, hw = w * sx / 2, hh = h * sy / 2;
+    to.style.clipPath = `inset(${cy - hh}px ${W - cx - hw}px ${Hb - cy - hh}px ${cx - hw}px round ${hh}px)`;
   }
-  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
-    if (t.classList.contains('on')) return;
-    document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
-    movePill(t, true);
-    const cur = document.querySelector('.page.on'), next = $('p-' + t.dataset.p);
-    cur.classList.remove('on'); next.classList.add('on');
-  }));
-  movePill(document.querySelector('.tab.on'), false); window.addEventListener('resize', () => movePill(document.querySelector('.tab.on'), false));
+  function step(ts) {
+    let dt = Math.min(0.032, last ? (ts - last) / 1000 : 0.016); last = ts;
+    for (let n = 0; n < 4; n++) {
+      const h = dt / 4;
+      v += (-330 * (x - goal) - 26 * v) * h; x += v * h;                        // ~0.35 s, slight overshoot
+      const moving = Math.abs(x - goal) > 3 || Math.abs(v) > 80;
+      const Lgoal = pressed || moving ? 1 : 0;
+      Lv += (-900 * (L - Lgoal) - 60 * Lv) * h; L += Lv * h;                   // critically damped, ~0.15 s
+    }
+    draw();
+    if (!pressed && Math.abs(x - goal) < 0.2 && Math.abs(v) < 1 && Math.abs(L) < 0.002 && Math.abs(Lv) < 0.01) {
+      x = goal; v = 0; L = 0; Lv = 0; draw(); raf2 = 0; return;
+    }
+    raf2 = requestAnimationFrame(step);
+  }
+  function run() { if (!raf2) { last = 0; raf2 = requestAnimationFrame(step); } }
+  function snap() { x = goal = slot(cur); v = 0; draw(); }
+  tabs.forEach((t, i) => {
+    t.addEventListener('pointerdown', () => { pressed = true; run(); });
+    t.addEventListener('click', () => {
+      if (i !== cur) {
+        document.querySelector('.page.on').classList.remove('on'); $('p-' + t.dataset.p).classList.add('on');
+        cur = i; goal = slot(i);
+      }
+      run();
+    });
+  });
+  window.addEventListener('pointerup', () => { if (pressed) { pressed = false; run(); } });
+  window.addEventListener('pointercancel', () => { if (pressed) { pressed = false; run(); } });
+  snap(); window.addEventListener('resize', snap);
 
   // ---- world clock (live) ----
   const CITIES = [['Taipei', 'Asia/Taipei'], ['Vienna', 'Europe/Vienna']];
