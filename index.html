@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="Clock">
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="manifest.webmanifest">
@@ -18,7 +18,7 @@
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   html, body { margin: 0; height: 100%; background: #000; color: #fff; overflow: hidden;
     font-family: -apple-system, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif; }
-  .page { position: fixed; left: 0; top: 0; width: 100vw; height: var(--H); display: none; opacity: 1; }
+  .page { position: fixed; left: 0; top: calc(-1 * var(--T, 0px)); width: 100vw; height: var(--H); display: none; opacity: 1; }
   .thin { font-family: -apple-system, "SF Pro Display", system-ui, sans-serif; font-weight: 100;
     font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; line-height: 1; white-space: nowrap; }
 
@@ -83,8 +83,8 @@
   .gap { height: calc(var(--H) * 0.045); }
   /* timers */
   .picker { position: absolute; left: 16vw; right: 16vw; top: calc(var(--H) * 0.36); height: calc(var(--H) * 0.11); }
-  .picker .sel { height: 30px; border-radius: 999px; background: #2c2c2e; display: flex; justify-content: space-around; align-items: center; font-size: 22px; font-weight: 600; }
-  .picker .sel span b { font-weight: 300; margin-right: 6px; font-size: 28px; }
+  .picker .sel { height: 30px; border-radius: 999px; background: #2c2c2e; display: flex; justify-content: space-around; align-items: center; font-size: 18px; font-weight: 600; }
+  .picker .sel span b { font-weight: 300; margin-right: 6px; font-size: 22px; }
   .picker .fade { display: flex; justify-content: space-around; color: #6e6e73; font-size: 22px; line-height: 1.25; }
   .picker .fade div { text-align: center; padding-left: 4px; }
   .picker .fade div p { margin: 0; }
@@ -92,13 +92,13 @@
   #tcontrols { position: absolute; left: 3.6vw; right: 3.6vw; top: calc(var(--H) * 0.537); transform: translateY(-50%);
     display: flex; justify-content: space-between; }
   .card { position: absolute; left: var(--pad); right: var(--pad); top: calc(var(--H) * 0.617); background: #1c1c1e; border-radius: 22px; padding: 0 16px; }
-  .card .r { height: 54px; display: flex; justify-content: space-between; align-items: center; font-size: 22px; }
+  .card .r { height: 52px; display: flex; justify-content: space-between; align-items: center; font-size: 17px; }
   .card .r + .r { border-top: 0.5px solid #3a3a3c; }
   .card .r span:last-child { color: #8e8e93; }
   .recents { position: absolute; left: var(--pad); right: var(--pad); top: calc(var(--H) * 0.785); }
-  .recents h2 { margin: 0; font-size: 24px; font-weight: 600; padding-bottom: 12px; border-bottom: 0.5px solid #3a3a3c; }
+  .recents h2 { margin: 0; font-size: 20px; font-weight: 600; padding-bottom: 12px; border-bottom: 0.5px solid #3a3a3c; }
   .recents .rr { display: flex; justify-content: space-between; align-items: center; padding-top: 10px; }
-  .recents .rr .t { font-size: 15vw; color: #98989d; }
+  .recents .rr .t { font-size: 13.7vw; color: #98989d; }
   .play { width: 60px; height: 60px; border-radius: 50%; background: #0d2e18; display: flex; align-items: center; justify-content: center; }
   .play::after { content: ""; border-left: 22px solid #30d158; border-top: 13px solid transparent; border-bottom: 13px solid transparent; margin-left: 5px; }
 
@@ -186,14 +186,17 @@
 <script>
 (function () {
   const $ = id => document.getElementById(id);
-  // Vertical positions use the physical screen height. The standalone web view can be shorter than the screen
-  // (iOS 26 keeps ~53pt at the bottom), so the tab capsule is anchored to the bottom of the real viewport and only
-  // placed at the true Clock position when the viewport covers the whole screen.
+  // Vertical positions use the physical screen height. iOS 26 cuts a status-bar-tall strip off the bottom of
+  // black-translucent home-screen apps (WebKit bug 301108), so the status bar is opaque black instead: the web view
+  // starts below it (T = its height) and runs to the real bottom edge. Pages are shifted up by T so screen-based
+  // positions still hold, and the tab capsule sits at the true Clock position.
   const H = (screen && screen.height) ? screen.height : 852;
+  const standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
   document.documentElement.style.setProperty('--H', H + 'px');
   function placeTabs() {
-    const vh = window.innerHeight, full = vh >= H - 8;
-    document.documentElement.style.setProperty('--tabBottom', (full ? Math.round(H * 0.0225) : 0) + 'px');
+    const T = standalone ? Math.max(0, H - window.innerHeight) : 0;
+    document.documentElement.style.setProperty('--T', T + 'px');
+    document.documentElement.style.setProperty('--tabBottom', (standalone ? Math.round(H * 0.0225) : 0) + 'px');
   }
   placeTabs(); window.addEventListener('resize', placeTabs);
 
