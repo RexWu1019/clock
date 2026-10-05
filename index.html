@@ -182,8 +182,8 @@
 <div id="setter">
   <div class="box">
     <p>Target</p>
-    <small>digits per press, comma separated<br>34 = .34 &nbsp; 234 = 2.34 &nbsp; 1234 = 12.34</small>
-    <input id="tgt" inputmode="numeric" pattern="[0-9,]*" autocomplete="off">
+    <small>digits per press, separate presses with .<br>34 = .34 &nbsp; 234 = 2.34 &nbsp; 1234 = 12.34</small>
+    <input id="tgt" inputmode="decimal" autocomplete="off">
     <div class="rowb"><div id="tcancel">Cancel</div><div id="tok">Save</div></div>
   </div>
 </div>
@@ -237,7 +237,7 @@
 
   // ---- stopwatch ----
   const digits = $('digits'), left = $('left'), right = $('right'), lapsEl = $('laps');
-  let state = 'reset', base = 0, startAt = 0, display = 0, laps = [], lapStart = 0, raf = 0, settling = false;
+  let state = 'reset', base = 0, startAt = 0, display = 0, laps = [], lapStart = 0, raf = 0;
 
   const KEY = 'sw.targets';
   function loadTargets() {
@@ -249,7 +249,8 @@
   function nextTarget() { return ti < targets.length ? targets[ti++] : null; }
   function landing(v, t) {
     const unit = 10, mod = Math.pow(10, t.length) * unit, want = parseInt(t, 10) * unit;
-    let f = Math.floor(v / mod) * mod + want; if (f < v) f += mod; return f;
+    // stay inside the window the display was already in, forward or back: every digit above the forced ones is unchanged
+    const f = Math.floor(v / mod) * mod + want; return f > 0 ? f : f + mod;
   }
   function fmt(ms) {
     const cs = Math.floor(ms / 10) % 100, s = Math.floor(ms / 1000) % 60, m = Math.floor(ms / 60000) % 60, h = Math.floor(ms / 3600000);
@@ -264,17 +265,8 @@
     lapsEl.innerHTML = rows.reverse().map(r => `<div class="lap${r.i === best ? ' best' : r.i === worst ? ' worst' : ''}"><span>Lap ${r.i}</span><span>${fmt(r.v)}</span></div>`).join('');
   }
   function tick() {
-    if (state !== 'running' || settling) return;
+    if (state !== 'running') return;
     display = base + (performance.now() - startAt); render(); raf = requestAnimationFrame(tick);
-  }
-  function settle(from, to, then) {
-    settling = true;
-    const dur = Math.min(650, Math.max(120, (to - from) / 6)), t0 = performance.now();
-    (function step() {
-      const k = Math.min(1, (performance.now() - t0) / dur), e = 1 - Math.pow(1 - k, 3);
-      display = from + (to - from) * e; render();
-      if (k < 1) requestAnimationFrame(step); else { display = to; render(); settling = false; then && then(); }
-    })();
   }
   function setButtons() {
     if (state === 'reset') { left.textContent = 'Lap'; left.className = 'btn grey dis'; right.textContent = 'Start'; right.className = 'btn green'; }
@@ -282,12 +274,11 @@
     if (state === 'stopped') { left.textContent = 'Reset'; left.className = 'btn grey'; right.textContent = 'Start'; right.className = 'btn green'; }
   }
   right.addEventListener('click', () => {
-    if (settling) return;
     if (state === 'running') {
       state = 'stopped'; setButtons(); cancelAnimationFrame(raf);
       const now = base + (performance.now() - startAt), t = nextTarget();
-      if (t) settle(now, landing(now, t), () => { base = display; });
-      else { display = now; base = now; render(); }
+      // freeze instantly like the real app; the hundredths were a blur, so the snap is invisible
+      display = base = t ? landing(now, t) : now; render();
     } else {
       if (state === 'reset') lapStart = 0;
       state = 'running'; startAt = performance.now(); setButtons(); raf = requestAnimationFrame(tick);
@@ -295,7 +286,6 @@
   });
   let tapTimes = [];
   left.addEventListener('click', () => {
-    if (settling) return;
     if (state === 'running') {
       const now = base + (performance.now() - startAt), t = nextTarget();
       let lapv = now - lapStart; if (t) lapv = landing(lapv, t);
@@ -309,7 +299,7 @@
   });
   $('tcancel').addEventListener('click', () => $('setter').classList.remove('show'));
   $('tok').addEventListener('click', () => {
-    const v = $('tgt').value.replace(/[^0-9,]/g, '');
+    const v = $('tgt').value.replace(/[^0-9]+/g, ',').replace(/^,|,$/g, '');
     try { localStorage.setItem(KEY, v); } catch (e) {}
     targets = v.split(',').map(s => s.trim()).filter(Boolean); ti = 0;
     $('setter').classList.remove('show');
