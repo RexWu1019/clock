@@ -50,8 +50,12 @@
      exactly where the lens covers it (that's how the real bar tints half an icon mid-slide). */
   #tabs { position: fixed; left: 21px; right: 21px; bottom: var(--tabBottom, 0px); height: calc(var(--H) * 0.0644);
     border-radius: 999px; z-index: 5; will-change: transform;
-    background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0) 7px, rgba(255,255,255,0) calc(100% - 7px), rgba(255,255,255,0.03)), #1f1f1f;
+    /* frosted glass: content behind shows through heavily blurred; .fill makes the middle denser than the rim, so the
+       edges read clearer, the way the real lens does (its refraction itself can't be done in CSS) */
+    background: linear-gradient(rgba(255,255,255,0.04), rgba(255,255,255,0) 7px, rgba(255,255,255,0) calc(100% - 7px), rgba(255,255,255,0.03)), rgba(52,52,52,0.6);
+    -webkit-backdrop-filter: blur(6px) saturate(1.4); backdrop-filter: blur(6px) saturate(1.4);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.19), inset 0 -1px 0 rgba(255,255,255,0.16); }
+  #tabs .fill { position: absolute; inset: 7px 9px; border-radius: 999px; background: rgba(31,31,31,0.45); filter: blur(4px); }
   #pill { position: absolute; left: 0; top: 7.4%; height: 85.2%; width: 26.1%; border-radius: 999px; background: #0a0a0a; will-change: transform; }
   .tabrow { position: absolute; inset: 0; }
   .tabrow.or { pointer-events: none; } .tabrow.or .tab { color: #f59d49; }
@@ -192,6 +196,7 @@
 </div>
 
 <div id="tabs">
+  <div class="fill"></div>
   <div id="pill"></div>
   <div class="tabrow" id="tw">
     <div class="tab" data-p="world" style="--k:0"><svg viewBox="0 0 24 24"><g class="s" stroke-width="1.3"><circle cx="12" cy="12" r="9.2"/><ellipse cx="12" cy="12" rx="4.3" ry="9.2"/><path d="M12 2.8v18.4M2.8 12h18.4M4.6 7.9Q12 5.6 19.4 7.9M4.6 16.1Q12 18.4 19.4 16.1"/></g></svg><span>World Clock</span></div>
