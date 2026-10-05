@@ -19,7 +19,11 @@
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; }
   html, body { margin: 0; height: 100%; background: #000; color: #fff; overflow: hidden;
     font-family: -apple-system, "SF Pro Text", "Helvetica Neue", system-ui, sans-serif; }
-  .page { position: fixed; left: 0; top: calc(-1 * var(--T, 0px)); width: 100vw; height: var(--H); display: none; opacity: 1; }
+  /* #frame: viewport-sized fixed box with a solid background, so WebKit fills the top edge with its colour instead of the
+     iOS 26/27 scroll edge blur (verified on the phone 2026-10-06, see docs/research/topblur.md). The 956-tall pages
+     alone count as TooLarge in an 894 viewport. */
+  #frame { position: fixed; inset: 0; background: #000; overflow: hidden; }
+  .page { position: absolute; left: 0; top: calc(-1 * var(--T, 0px)); width: 100vw; height: var(--H); display: none; opacity: 1; }
   .thin { font-family: -apple-system, "SF Pro Display", system-ui, sans-serif; font-weight: 100;
     font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; line-height: 1; white-space: nowrap; }
   .t.thin { font-weight: 200; font-variant-numeric: proportional-nums; font-feature-settings: "pnum"; }
@@ -132,6 +136,7 @@
 </style>
 </head>
 <body>
+<div id="frame">
 
 <!-- World Clock -->
 <div class="page on" id="p-world">
@@ -193,6 +198,8 @@
     <div class="rr"><div><div class="t reg">59:00</div><div class="lbl">59 min</div></div><div class="play"><svg width="18" height="21" viewBox="0 0 20 23" style="margin-left:2px"><path d="M1.6 1.3c0-.9 1-1.5 1.8-1L19 10.3c.8.5.8 1.7 0 2.2L3.4 22.7c-.8.5-1.8-.1-1.8-1z" fill="#30d158"/></svg></div></div>
     <div class="rr"><div><div class="t reg">12:00</div><div class="lbl">12 min</div></div><div class="play"><svg width="18" height="21" viewBox="0 0 20 23" style="margin-left:2px"><path d="M1.6 1.3c0-.9 1-1.5 1.8-1L19 10.3c.8.5.8 1.7 0 2.2L3.4 22.7c-.8.5-1.8-.1-1.8-1z" fill="#30d158"/></svg></div></div>
   </div>
+</div>
+
 </div>
 
 <div id="tabs">
